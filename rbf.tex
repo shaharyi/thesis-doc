@@ -1,0 +1,13 @@
+http://www.farfieldtechnology.com/products/toolbox/theory/rbffaq.html
+
+http://www.farfieldtechnology.com/products/toolbox/theory/surfacefaq.html
+
+What do we mean by an RBF model of an object?
+We can represent surface data with a single 3D Radial Basis Function. This spatial function represents a signed `distance' from the object's surface. Points inside the object have a negative `distance' while points outside are positive. The object's surface is defined implicitly as the zero set of this function.
+
+    A single analytic function describes the signed-distance function
+    This function is continuous and smooth (can be as smooth as one wishes by the appropriate choice of the basic function).
+    We do not mean a piecewise low-order algebraic surface, sometimes referred to as an implicit patch or semi-algebraic set
+    Unlike constructive solid geometric (CSG) modelling, the object is not decomposed into Boolean unions/intersections between primitives, although RBF models could be used in this way.
+
+The signed distance function fitted to the surface data forms a solid model. Iso-surfaces from the solid model are therefore guaranteed to be manifold (i.e. manufacturable).

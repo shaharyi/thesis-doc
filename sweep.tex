@@ -1,0 +1,65 @@
+%(where we describe our algorithm in starting with overview and going into all levels of detail)
+%
+%After the overview We should describe the following sections:
+%- Initial Input
+%- Volume Boundary 
+%- Grading the boundary
+%- Selecting Most Effective Input Slice (to suggest for user input)
+
+\section{Method Details}
+\markboth{Method Details}{}
+\label{sec:sweep}
+
+%\begin{enumerate}
+%    \item proximity:  admitting to the original raw data;
+%    \item confidence: respecting the blended profile;
+%    \item smoothness: the general cylinder is smooth.
+%\end{enumerate}
+
+\subsection{RBF 3D Interpolation}
+For detailed background, see \cite{buhmann2003radial}, \cite{press2007numerical}.
+
+Given curves delineated on 2D slices, we want to create a surface that interpolate them, which would segment the volume into foreground and background. We first briefly review the method of RBF for smoothly interpolating scattered data. Given spatial locations (called ``centers'') $x_i$ for $i=1,\ldots,n$, each associated with some scalar value $f_i$. The value at an arbitrary spatial location $x$ can be computed by
+\[
+f(x) = \sum_{i=1}^{n} w_i \phi (\|x - x_i\|)
+\]
+where $\phi (t)  = r^{2}  \ln (t)$ is a radial basis kernel. The weights $w_i$ are computed to satisfy the interpolation property, namely $f(x_i)=f_i$ for all $i$. The computation of $w_i$ involves solving a linear system with $n$ equations, after which the evaluation of $f(x)$ for any $x$ involves only a simple summation as in the above formula. Such interpolation $f$ is smooth in the sense that it has the minimal integral of squared second derivatives, the so-called thin-plate spline energy.
+
+To apply RBF to our curve interpolation problem, we create a signed volume via interpolation so that the zero iso-surface of the volume interpolates the curves. We start by sampling each curve and creating, for each sample, two RBF centers along the normal of the curve, one on the inside and the other on the outside. The inside center is given a value of 1 and the outside center has value -1. The signed volume is then computed using RBF from the values at these centers.
+Actually, our research showed that it is better to use the normal of the underlying image gradient for this purpose rather than the curve normal, at least in not-too-noisy data, see \ref{subsec:rbfSeg} and figure~\ref{fig:rbfGrad}.
+
+As mentioned above, the complexity of solving for RBF depends on the number of centers, $n$. On the other hand, it is often not necessary to use a large number of RBF centers if the shape to be interpolated is inherently smooth. For efficiency, we adapt the RBF center reduction method of \cite{carr2001}, which iteratively adds centers until the interpolation error drops beneath a threshold. Rather than considering centers on all planes at once, our reduction proceeds in two stages that ease the computation. In the first stage, we compute the centers on each 2D plane that are sufficient to interpolate the curve on that plane using a 2D RBF interpolation. Specifically, we start by computing the interpolation for only a tenth of all centers. Let the number of these centers be $k$. If the interpolation error $\|f_i-f(x_i)\|$ is greater than a threshold for any un-used center $x_i$, we add in the $k$ centers with the greatest errors and repeat the process. In the second stage, we perform a similar center-addition process in 3D involving centers on all planes, but starting from the reduced set of centers on each plane.
+
+\subsection{Assessing Uncertainty}
+While RBF segmentation results a smooth boundary surface that interpolates the input curves (up to a given error threshold), the segmentation may not correctly capture the actual anatomical boundary in the image space in-between the planes. Our goal is to assign an uncertainty score over the segmentation surface that measures deviation from the true boundary. Regions with high uncertainty should then be alerted to the user for further delineation.
+
+We define the uncertainty at a point on the surface simply as its (unsigned) distance to the closest strong image edge. We extract image edges by applying the discrete Laplacian operator to each voxel and taking those voxels (called edge voxels) whose Laplacians are at least 3 standard deviations away from the mean over all voxels. 
+We chose to use the laplacian kernel since it is sensitive in all directions simultaneously. It is also sensitive to thin edges, not only to gradual transitions.
+For the interpolated body, we define a surface voxel as one that has a large gradient (over a threshold, using Prewitt operator \cite{prewitt1970object}). We then compute the shortest Euclidean distance from each surface voxel to an edge voxel. This measurement of uncertainty is similar to the boundary term in the formulation of \cite{Top2011}. Note that we do not need the smoothness term in \cite{Top2011} as we start with a smooth segmentation.
+The voxels with certainty below the overall average certainty are deemed to be ``low grade voxels''.
+
+\subsection{Clustering the Low-Grade Voxels}
+We would like to suggest a plane that covers significant uncertain regions on the surface. The significance would need to take into account both the level of uncertainty and the size of the uncertain region. To this end, we first rule out surface voxels whose uncertainty is lower than the average among all surface voxels. The rest of the surface voxels are considered uncertain. We then find clusters of densely connected uncertain voxels, using a variant of the density-based clustering algorithm DBSCAN \cite{dbscan96kdddm}. Starting from an un-clustered uncertain voxel, if it has more than $k$ neighboring uncertain voxels for a given constant $k$ in its 26-neighborhood, we create a cluster for it. A cluster is expanded as long as the density of the cluster is maintained. The clustering method does not require the knowledge of the number of clusters ahead of time, and is not sensitive to the ordering of voxels. See algorithm illustration in figure~\ref{fig:dbscan}.
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1.0\textwidth]{images/2000px-DBSCAN-Illustration.png}
+			\caption[DBSCAN Illustration]{
+				Illustration of DBSCAN cluster analysis (minPts=3).
+				Points around A are core points. Points B and C are not core points, but are density-connected via the cluster of A (and thus belong to this cluster). Point N is Noise, since it is neither a core point nor reachable from a core point.
+		}\label{fig:dbscan}
+\end{figure}
+
+We have chosen DBSCAN for our approach becuase it does not require to define the number of clusters ahead of time, it is not senstive to the ordering of points in the data sets and it can handle arbitrary shape of the clusters.
+We developed a volumetric grid-oriented variant of this meta-algorithm. We replaced the part that uses global distance matrix to query for neighbors of a given voxel with a version that only looks at its 26-ring for neighbors. Actually we further confine to its $ \epsilon $-neighborhood, in practice using $ \epsilon <= 1.5 $, so that we only consider the 9-ring of the voxel.
+This variant greatly reduces the memory complexity, making the algorithm feasible for this problem. 
+
+\subsection{Finding the Next Plane}
+Since we want to reduce the global uncertainty as much as we can with the next user step, we seek a plane that will pass through the clusters with the greatest size. 
+
+Our research showed that in case the cluster-size drops significantly after the first largest one or two, it is better to concentrate on covering the largest clusters and not to consider the following small ones.
+
+From the three largest cluster (sorted in descending order) we consider, besides the first, only those with size at least half as their predecessor. If we have all three clusters, the plane is defined to pass through the three cluster centroids (see Figure \ref{fig:overview_image} (d)). Otherwise, we perform the Principal Component Analysis (PCA) \cite{Jolliffe:2002} of the largest cluster and define the plane through the centroids of the clusters, in the direction spanned by the first (one or two, according to how many clusters we have) major PCA axes.
+I.e., if the second largest cluster is under 50\% of the largest one, we only use the largest cluster's centroid and two PCA axes. If the two first clusters are large but the third drops by 50\% or more, we use the 2 clusters' centroids and the first PCA axis of the largest one.
+Once we have three points, we can extract the slice sitting on the corresponding plane.
+Appendix~\ref{sec:oblique} describes oblique slice extraction for the interested reader.

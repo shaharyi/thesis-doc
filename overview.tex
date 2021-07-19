@@ -1,0 +1,21 @@
+\section{Overview}
+\markboth{Overview}{}
+\label{sec:overview}
+
+The input to our method is a 3D volume (e.g., a MRI or CT scan). A clinician needs to demarcate an anatomical area in a set of mutiple MRI images of the body. The user is trained and competant to delineate the anatomy in 2D planes. We propose to replace the delineation of multiple arbitrary 2D planes with 2D planes which yields the most effective utilization of the clinician time resource. Figure~\ref{fig:overview_image} illustrates the method flow.
+We start by asking the user to delineate boundary curves on a few oblique cross-sections. The user may choose to select these initial planes by hand, or let the system arbitrary pick two orthogonal planes centered in the volume.
+The method then iterates until the user is satisfied with the segementation:
+\begin{enumerate}
+	\item Create the segmentation from delineations on existing planes using RBF
+	\item Assess the uncertainty over the segmented surface based on distances to image edges
+	\item Suggesting a new plane by clustering the high-uncertainty regions
+\end{enumerate}
+
+\begin{figure}[hb]
+\centering
+  \includegraphics[width=1.0\textwidth]{images/overview.png}
+  \caption[Algorithm Pipeline]
+  {
+Algorithm Pipeline on a toy example: (a) Curve delineated on one of the initial planes. (b) Segmentation using the initial planes (two here). (c) Clusters of segmentation points with high uncertainty. (d) Delineation on the next plane suggested by our algorithm, which passes through the centroids of the 3 largest clusters in (c), and the updated segmentation.  
+  }\label{fig:overview_image}
+\end{figure}

@@ -1,0 +1,144 @@
+\section{Preliminary Research in 2D}
+\markboth{Preliminary Research in 2D}{}
+\label{sec:preliminary}
+When we first tackled the problem, we started with 2D setting.
+In figure~\ref{fig:mvcInput} we see a blob and some lines passing through it.
+The user supposedly marked the parts of the lines that are inside the blob, although actually it was done automatically.
+Then, the algorithm computed the interpolated 2D blob induced by this input.
+
+
+\subsection{MVC Style Segmentation}
+
+Our first attempt at constructing an interpolation was in the spirit of MVC \cite{Floater200319}.
+We computed for each point in the image the aggregated influence of the input segments.
+Each segment is labeled ``inside'' or ``outside''. 
+Its impact is inverse-proportional to the integral of the distances from the target point to the segment points:
+\[
+\int_a^b \mathrm{\frac{1}{\|x-c\|}} \,\mathrm{d}x
+\]
+In order to label a target point, we simply sum-up all the impacts with their proper sign (1 for inside, -1 for outside) and the result sign is the label for the target point.
+Figure~\ref{fig:mvcNoDT} shows the result of this method.
+
+A further improvement was achieved by using sort of ``distance transform'' weight to outside segment impact.
+In Figure~\ref{fig:mvcIntegral} we see a segment $ab$, labeled ``outside'', and a random point $c$.
+We want to calculate the impact of segment $ab$ on the labeling of point $c$.
+We found out that it was better to let the distance of the segment points from the blob affect the order of impact on the target point:
+\[
+\int_a^b \mathrm{\frac{x}{\|x-c\|}} \,\mathrm{d}x 
+\]
+The result is shown in figure~\ref{fig:mvcDT}.
+
+\begin{figure}[ht]
+\centering
+  \includegraphics[width=1.0\textwidth]{images/draw1_integral.png}
+  \caption[``MVC'' Calculation]{
+  ``MVC'' Calculation.  The segment $ab$ affects the label of $c$.
+  }\label{fig:mvcIntegral}
+\end{figure}
+
+
+\clearpage
+
+\iffalse
+
+\begin{figure}[ht]
+\centering
+ \begin{minipage}[h]{.35\textheight}
+  \centering
+  \includegraphics[width=.35\textheight]{images/draw1_input.png}
+  \vspace{.1cm}
+  \end{minipage}
+ \begin{minipage}[h]{.35\textheight}
+  \centering
+  \includegraphics[width=.35\textheight]{images/draw1_no_dt.png}
+  \vspace{.1cm}
+  \end{minipage}
+ \begin{minipage}[h]{.35\textheight}
+  \centering
+  \includegraphics[width=.35\textheight]{images/draw1_dt.png}
+  \end{minipage}
+  \caption[``MVC'']{
+  ``MVC'' (a) Input. (b) Result w/o DT. (c) Result with DT.
+  }\label{fig:mvc}
+\end{figure}
+
+\fi
+
+\begin{figure}[t]
+\centering
+  \includegraphics[width=.3\textheight]{images/draw1_input.png}
+  \caption[``MVC'' Input]{
+  ``MVC'' Input.
+  }\label{fig:mvcInput}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+  \includegraphics[width=.3\textheight]{images/draw1_no_dt.png}
+  \caption[``MVC'' w/o DT]{
+  ``MVC'' without using distance transform
+  }\label{fig:mvcNoDT}
+\end{figure}
+
+\begin{figure}[b]
+\centering
+  \includegraphics[width=.3\textheight]{images/draw1_dt.png}
+  \caption[``MVC'' with DT]{
+  ``MVC'' using distance transform
+  }\label{fig:mvcDT}
+\end{figure}
+
+\clearpage
+
+\subsection{RBF Segmentation}\label{subsec:rbfSeg}
+Another interpolation method that we tried is RBF i.e., radial basis functions approximation.
+A radial basis function (RBF) is a real-valued function whose value depends only on the distance from the origin, so that $\phi(\mathbf{x}) = \phi(\|\mathbf{x}\|)$; or alternatively on the distance from some other point c, called a center, so that $\phi(\mathbf{x}, \mathbf{c}) = \phi(\|\mathbf{x}-\mathbf{c}\|)$. Any function $\phi$ that satisfies the property $\phi(\mathbf{x}) = \phi(\|\mathbf{x}\|)$ is a radial function. The norm is usually Euclidean distance, although other distance functions are also possible.
+For example, in figure~\ref{fig:rbfDemo} we see how 3 Gaussian RBF functions produce a smooth function.
+Given spatial locations (``centers'') $x_i$ for $i=1,\ldots,n$, each associated with some scalar value $f_i$. The value at an arbitrary spatial location $x$ can be computed by
+\[
+f(x) = \sum_{i=1}^{n} w_i \phi (\|x - x_i\|)
+\]
+where $\phi (r)  = r^{2}  \ln (r)$ is a radial basis kernel of type ``thin plate spline''. The weights $w_i$ are computed to satisfy the interpolation property, namely $f(x_i)=f_i$ for all $i$. The computation of $w_i$ involves solving a linear system with $n$ equations, after which the evaluation of $f(x)$ for any $x$ involves only a simple summation as in the above formula. Such interpolation $f$ is smooth in the sense that it has the minimal integral of squared second derivatives, the so-called thin-plate spline energy.
+
+To apply RBF to our problem, we create a signed area via interpolation so that the zero isoline (iso-contour) of the area interpolates the boundary points. We start by creating for each in-out crossing, two RBF centers along the normal of the image gradient, one on the inside and the other on the outside. The inside center is given a value of 1 and the outside center has value -1. The signed area is then computed using RBF from the values at these centers.
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1.0\textwidth]{images/rbf_1D_demo.png}
+			\caption[1D RBF Demonstration]{
+				1D RBF Demonstration.
+				The dashed functions are Gaussian RBFs;
+				The solid function is their weighted sum.
+		}\label{fig:rbfDemo}
+\end{figure}
+
+In figure~\ref{fig:rbfNoGrad} we didn't use the image gradient, but positioned the inside/outside RBF centers along the segment itself, around the in-out crossing.
+Figure~\ref{fig:rbfGrad} shows an improved result when using the image gradient for positioning the RBF centers.
+Another idea for improvement was to allow the contour ``breath'' along the gradient-normal, searching for the patch with the most similar signature to the nearest in/out crossing patch signature.
+The result of this idea is illustrated in figure~\ref{fig:rbfBreath}.
+In this figure, the circles' radius indicates the degree of the aforementioned similarity.
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1.0\textwidth]{images/draw3_rbf_ignore_gradient.png}
+			\caption[2D RBF w/o Using Image Gradient]{
+				2D RBF w/o Using Image Gradient.
+		}\label{fig:rbfNoGrad}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1.0\textwidth]{images/draw3_rbf_gradient.png}
+			\caption[2D RBF Utilizing Image Gradient]{
+				2D RBF Utilizing Image Gradient.
+		}\label{fig:rbfGrad}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1.0\textwidth]{images/draw3_rbf_breath.png}
+			\caption[2D RBF With Contour ``Breathing'']{
+				2D RBF With Contour ``Breathing''.
+		}\label{fig:rbfBreath}
+\end{figure}
+

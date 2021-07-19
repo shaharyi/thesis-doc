@@ -1,0 +1,21 @@
+\section{Oblique Slice Extraction}
+\markboth{Oblique Slice Extraction}{}
+\label{sec:oblique}
+We are given as input cuboid volume and 3 points inside it, designating a desired plane.
+The output should be a rectangular area, in which the desired slice is bounded.
+We bring the algorithm here, as we searched for suitable ready-made algorithm or code, but eventually we had to devise it ourselves.
+The algorithm proceeds as follows:
+\begin{enumerate}
+	\item Find intersections of the plane with the data box edges.
+	\item For these points, find a rectangle bounding-box.
+	\item Find the affine transformation $T(x) = Ax + t $ from $\textrm{R} ^2$ to $\textrm{R}^3$.
+
+	~~For each axes-pair:
+	\begin{enumerate}
+		\item Calculate the corners targets.
+		\item Use them to calculate the transformation and the target dimensions.
+	\end{enumerate}
+	~~Take the axes-pair that yields the rectangle with minimum area.
+	
+	\item Use the transformation and do trilinear interpolation for every value in the 2D target image.
+\end{enumerate}

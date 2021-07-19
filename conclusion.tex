@@ -1,0 +1,23 @@
+\section{Conclusion and Future Work}
+\markboth{Conclusion and Future Work}{}
+\label{sec:conclusion}
+
+% This chapter should summarize the achievements of your thesis and discuss their impact on the research questions you raised in Chapter 1. Use the distinctive phrasing "An original contribution of this thesis is" to identify your original contributions to research. If you solved the specific problem described in Chapter 1, you should explicitly say so here. If you did not, you should also make this clear. You should indicate open issues and directions for further or future work in this area with your estimates of relevance to the field, importance and amount of work required. 
+
+We reported a novel algorithm for identifying the next plane for user to delineate in the plane-based interactive segmentation paradigm. While being both mathematically and computationally simpler than prior art on this problem, we demonstrated that the method achieves similar reduction with prior art in the number of planes needed to achieve a reasonable segmentation accuracy over random plane selection.
+\\
+Our research started with 2D interpolation using 1D ``slices'' (segments). It took long until we came to acknowledge the power an elegance of the RBF method. 
+Then we had to come up with an algorithm for suggesting the next best hyperspace to delineate.
+Our intuition was that the image gradient is the main hint as for the uncertainty of a segmentation.
+But medical image gradient is very local, unstable and noisy.
+At start, we computed uncertainty using patch-similarity techniques. We assumed that the patches at the user marks are good benchmarks for the rest of the surface. But this was expensive to compute and didn't have the expected results.
+We then took a break to again inspect medical images and characterize the target boundaries, as humans percieve them.
+We noticed that there was actually an edge, only not of consistent type. But usuallly the edge was thin and noticeable.
+Thus we came to realize that the simple measure of distance to nearest Laplacian-style edge captures the uncertainty in most cases.
+\\
+Interestingly, we discovered during our research that the seemingly trivial random-plane selection algorithm is very often adequate. It may be the case that the original problem stems from the fact that humans don't tend to pick oblique slices as it is hard for them to delineate the target on them. Had they were forced to learn this trade, they could make do with the random algorithm in many cases.
+\\
+As a future work, we would like to conduct user studies to further evaluate the benefit of using our algorithmically selected planes versus expert-picked planes. We would also like to further improve the efficiency of the algorithm by exploring GPU-based signed distance generation for computing the uncertainty field and further optimizing the RBF interpolation method.
+
+The RBF interpolation method can be further optimized to be faster and more robust to user inaccuracies. That is, it has to overcome contradicting contours, where the difference stems merely from inaccurate user marks.
+The cluster analysis of the low-certainty areas can also be further developed and fine-tuned. E.g., if the first cluster is over twice the second cluster, we may still use the second cluster's PCA combined with the first cluster's PCA in clever ways, e.g., compute the combined weighted PCA, or maybe only considering nearly-aligned components of the two clusters.

@@ -1,0 +1,192 @@
+\iffalse
+TODO
+====
+(*) Read Carr2001 and most should be answered:
+1. sampling rate of the contours and the performance
+2. limitations of the method
+3. TPS energy min. for smoothness - why is it good here?  maybe other energy min. is better?
+4. is RBF interpolation or fitting? does it pass through the data (interp) or allows deviations for smoothness?
+
+check * reach 50 pages
+check * more results
+check *  figures to explain RBF
+check * Preliminary research
+check * DBSCAN density-oriented clustering
+* figures to explain "oblique slice extraction"
+* distance-transform (I use it for "distance from nearest edge" for the uncertainty field)
+* My usage of PCA
+
+Danny:
+=====
+check - You must extend the abstract to two pages. Like a mini paper...good chances that they will read only this summary.
+check - Expand the figures a lot!!!
+check - Did you use our older and longer version? the intro was much longer. Can you extend it?
+check - Just before sec 4.4 you have XXXX
+check - Each fig can be on a whole page!
+check - The graph in fig 4 can be 3x larger each!
+check - make the conclusions much longer. Really, write what you have done again, and your real conclusions.
+check - What is that on page 22? A ? looks weird .
+\fi
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[hebrew,english]{babel}
+
+\linespread{1.5}
+
+\usepackage{listings}
+
+\usepackage[hyphens]{url}
+
+\usepackage[titletoc,toc,title]{appendix}
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{mathptmx}
+\usepackage[pdftex]{graphicx}
+\usepackage{epsfig}
+
+\usepackage{times}
+\usepackage{colortbl}
+
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{makeidx}
+\usepackage{ifthen}
+
+\usepackage{cite}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{arydshln}
+
+\DeclareGraphicsExtensions{.jpg,.pdf,.mps,.png}
+\graphicspath{ {./Figures/} }
+
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+
+\pagestyle{fancy}
+% Remember chapter title
+%\renewcommand{\chaptermark}[1]{\markright{Chapter. \thechapter:\ #1}{}}
+% section number and title
+
+%\renewcommand{\sectionmark}[1]{\markright{#1}{} }
+\lhead[\fancyplain{}{\bfseries\thepage}] {\fancyplain{}{\bfseries\thepage}}
+%    {\fancyplain{}{\bfseries\rightmark}}
+\rhead[\fancyplain{}{\scshape\leftmark}] {\fancyplain{}{\bfseries\leftmark}}
+%    {\fancyplain{}{\bfseries\thepage}}
+\cfoot{}
+    
+%\renewcommand*\thesubsection{\arabic{subsection}}
+    
+\usepackage[pdftex,
+pdftitle={Algorithm for Suggesting Delineation Planes for Interactive Segmentation},
+pdfauthor={Shahar Yifrah}, ]{hyperref}
+\hypersetup{colorlinks=true,
+linkcolor=black, anchorcolor=blue, citecolor=blue, filecolor=blue,
+menucolor=blue,  urlcolor=blue}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+
+%\usepackage{url}
+%\newcommand{\urlBiBTeX}[1]{\url{#1}}
+
+%% Define a new 'leo' style for the package that will use a smaller font.
+%\makeatletter
+%\def\url@leostyle{%
+%  \@ifundefined{selectfont}{\def\UrlFont{\sf}}{%
+%    \def\UrlFont{\small\ttfamily}}\Url@do
+%} \makeatother
+
+%% Now actually use the newly defined style.
+\urlstyle{leo}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+\def\makenote#1{\textsl{[ }\textbf{Note: \textsl{#1{} ]}}}
+
+\newcommand{\hide}[1]{}
+
+\newcommand{\tofix}[1]{}  %  {{\color{red}[FIX: #1]}}
+%===========================================================
+
+
+
+\begin{document}
+
+\selectlanguage{hebrew}
+\include{msc_titles_heb}
+\include{MyAbstract_heb}
+\selectlanguage{english}
+
+\include{msc_titles}
+
+\include{ack}
+
+\cleardoublepage
+
+\setcounter{page}{1}
+
+% ------------------------------- Abstract
+\include{MyAbstract}
+% ------------
+
+% ----------------------------- Table of contents
+\tableofcontents
+\newpage
+
+\listoffigures
+
+\newpage
+
+% ------------------------------ Introduction
+\include{MyIntro}
+%-------------
+
+% ----------------------------- Related work
+\include{MyRelwork}
+%---------------
+
+% ----------------------------- Preliminary Research
+\include{preliminary}
+%---------------
+
+% ----------------------------- Overview
+\include{overview}
+%---------------
+
+% ----------------------------- Sweep
+\include{sweep}
+%---------------
+
+% ------------------------------- Results and conclusion
+\include{MyResults}
+\include{conclusion}
+%---------------
+
+\lhead[\fancyplain{}{\bfseries\thepage}] {\fancyplain{}{\bfseries\thepage}}
+\rhead[\fancyplain{}{\scshape Appendices}] {\fancyplain{}{\bfseries Appendices}}
+
+\begin{appendices}
+
+% \include would start a new page
+\input{oblique.tex}  
+
+% \include would start a new page
+\input{copyright_perm.tex}  
+
+%\include{listing}
+
+\end{appendices}
+
+\newpage
+
+\lhead[\fancyplain{}{\bfseries\thepage}] {\fancyplain{}{\bfseries\thepage}}
+\rhead[\fancyplain{}{\scshape\leftmark}] {\fancyplain{}{\bfseries\leftmark}}
+
+% ------------------------------ Bibliography
+\bibliographystyle{alpha}
+\bibliography{mythesis}
+
+\end{document}

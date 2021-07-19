@@ -1,0 +1,53 @@
+%\section*{תקציר}
+%\markboth{תקציר}{}
+%\label{sec:תקציר}
+% short intro to the problem space and the opportunity
+
+%avoid warning "`destination with the same identifier (nam e{page.1}) has been already used, duplicate ignored"'
+%\hypersetup{pageanchor=false}
+
+{\huge תקציר}
+
+בחיבור זה אנו מציגים סכימה להפחתת מספר סימוני המשתמש הנדרשים לשם תיחום )סגמנטציה( של עצם בפרוסות דו מימדיות.
+הקלט הראשוני הוא מספר עקומים תוחמים היוצרים תיחום ראשוני.
+משם בצורה רציפה, האלגוריתם מנתח את רמת הביטחון של התיחום לפי קווי התמונה ומציע את ''המישור הבא'' לסימון.
+מישור זה אמור להגביר את רמת הביטחון באיזורים הנדרשים באופן מיטבי.
+
+הבעיה של ''היכן לסמן עכשיו'' היא לא מוגדרת היטב כי אובייקט המטרה לא יכול להיות מוגדר בלי ידע של מומחה.
+בהשוואה למאמרים קודמים בנושא, כאן אנו מאמצים צורת חישוב פשוטה המורכבת מאינטרפולציה בשיטת
+\foreignlanguage{english} {, RBF}\selectlanguage{hebrew}
+מטריקת ביטחון מבוססת מרחק, והגדרת מישור המשתמשת בהקבצה מבוססת צפיפות של ווקסלים נמוכי ביטחון.
+
+.פיתחנו יישום גרפי עבור מחקר זה, עם ממשקים דו מימדי ותלת מימדי
+כך הדגמנו את האלגוריתם על דוגמאות סינטטיות ואמיתיות ווידאנו שניתן להשתמש בו באופן אינטראקטיבי ע''י תזמון פעולותיו.
+השווינו את האלגוריתם לאלגוריתם הבוחר מישור באקראי וזה הספיק, כי באופן מפתיע גם האלגוריתם האקראי נתן תוצאות יפות בזכות עצמו.
+
+הביצועים של אלגוריתם בהקשר שלנו מתבטא בגרף ''דמיון לאובייקט המקור'' כפונקציה של ''מספר הפרוסות''.
+אנו משווים את האלגוריתם לאלגוריתם הטוב ביותר הידוע על נתונים דומים וומראים שהם בעלי ביצועים דומים.
+מעניין לציין שלשלושת האלגוריתמים הנ''ל ביצועים דומים.
+לכן, העובדה שהאלגוריתם שלנו טוב יותר מהאקראי ומשתווה לטוב ביותר מספקת את הדרישות.
+אנו מראים שהשיטה שלנו משתמשת בפחות מחצי ממספר המישורים שדרוש לאלגוריתם אקראי כדי להגיע ל-09 אחוז דיוק בתיחום.
+
+\iffalse
+%\subsection*{Research Focus}
+In this thesis we present a scheme to reduce the amount of user iterations required to segment an object by delineating on cross-section planes.
+Starting with an initial segmentation created from a small number of delineated curves, the algorithm progressively analyzes the uncertainty of segmentation with respect to the image features and suggests the ``next plane'' for delineation that would maximally resolve the uncertain regions.
+The problem of ``where to delineate next'' is an ill-posed geometric problem since the target shape cannot be defined without the expert know-how. Compared with the few prior art on this problem, we adopt a simpler computational framework that is made up of an RBF-based curve interpolation method, a distance-based uncertainty metric, and a plane determination approach using density-based clustering.
+
+%\subsection*{Research Methods Used}
+We developed an interactive graphic application for this research, with both 2D and 3D interfaces.
+This way we could demonstrate the algorithm using both synthetic and real examples and verify that it can be used interactively by timing its operation.
+A comparison of this algorithm with random plane-selection algorithm was performed, and it proved to be sufficient, as the random algorithm had pretty good performance on its own, surprizingly enough.
+
+%\subsection*{Results}
+The performance of an algorithm in our context is expressed in the graph of ``similarity to ground-truth'' as function of ``number of slices''. 
+We compare our algorithm to the stat-of-the-art algorithm on similar data and show that they exhibit similar performance.
+It is interesting to note that that all three algorithms (ours, state-of-the-art, and the random) are similar in their performance.
+Thus, showing that we beat the random algorithm and compete well with the state-of-the-are, is adequate.
+We show that our method uses less than $50\%$ of the number planes than a random selection scheme to achieve $90\%$ segmentation accuracy.
+
+%\subsection*{Conclusions and Recommendations}
+We have demonstrated an elegant and efficient method for interactively delineating 3D shapes in a volume.
+The RBF interpolation method can be further optimized to be faster and more robust to user inaccuracies. That is, it has to overcome contradicting contours when the difference stems merely from inaccurate user marks.
+The cluster analysis of the low-certainty areas can be further developed and fine-tuned. For example, if the first cluster is over twice the second cluster, we may still use the second cluster's PCA combined with the first cluster's PCA in clever ways, e.g., compute the combined weighted PCA, maybe only considering nearly-aligned components of the two clusters.
+\fi

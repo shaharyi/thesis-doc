@@ -1,0 +1,261 @@
+\section{Results and Evaluation}
+\markboth{Results and Evaluation}{}
+\label{sec:results}
+
+\subsection{Assessing Interpolation Quality}
+The goal of our approach is to ease the interaction on the user especially on the time consuming task of where additional input will be beneficial. As such our assesment of the qaulity of the interpolation is based on the number of interatatcions are needed until a sufficient delineation is achieved. We choose cases where an expert observer has defined the desired 'ground truth' result of the 3D volume. 
+
+We measure the distance between any intermediate result and the 'ground truth' using several measures. First we apply a Dice Coefficient \cite{1945} technique. Although developed as a measure for similarity in biology applications it has become popular in computer science due to its simplicity and effectiveness. Considering two groups, A being all voxels in the boundary of the 'groud truth' and B being all voxel in the boundary of the scored delineation. 
+We let, $ DC =\frac{2\|C\|}{\|A\|+\|B\|} $ where C is the set of common voxels to A and B.
+
+Since in our test cases we know the 'ground truth' delineation we used additional measures to reflect the geometric similarity between the 'groud truth' and the score delineation. We used for this two measures which are a variation on the Hausdorff distance \cite{rockafellar2010variational}. To map the average geometric distance between the two delineations we use a computation that is based on a distance transform. We calculate a distance transform for the 'ground truth' delineation. For any delineation we need to score, we lookup the distance for every voxel on its boundary. We take the average disatnce, on all boundary voxles, as a measure for the delineation. This intuitive measure does not reflect missing sections in the scored delineation which exist in the ground truth. To capture this we measure the number of voxels in the ground truth that are not covered by the scored delineation.
+
+The scoring techniques are used to grade how similar a given contour is to the 'ground truth', but to measure how effective the algoritm is in accelarting the delineation process we need to compare it to other methods. One comparison could be with a tedious apporach, which means requesting the user to delineate ech slice sequenctially until the desired outcome is achieved. We chose a more aggressive comparison which we call a Random Slice approach. Here we ask the user to add input on a random oblique slice that goes thorugh the center of the current contour. We compare the two approaches based on the required iterations to be 90\% similar to the 'ground truth'
+
+We tested the approach on synthetic shapes and medical imaging data sets.
+
+\subsection{Synthetic Shapes}
+The first example is a tripod shape 3D object. Figures~\ref{fig:tripod_smart1},\ref{fig:tripod_smart2},\ref{fig:tripod_smart3} shows how the algorithm starts with two arbitrary slices for the initial input. In lack of prior information, these are taken to be two orthogonal slices through the center of the bounding box of the object. Figure~\ref{fig:tripod_smart2} shows the areas that vane been recognized with low confidence level. Figure~\ref{fig:tripod_smart3} shows how the next plane is selected, hilighted in blue cross section. Figure~\ref{fig:tripod_random} shows what a random delineation process of this shape would look like on sample iterative steps (i.e. 3, 7, and 11 iterations). By th emany cross sections in the image of inteation number 11, it can be seen that some cover an area which is already well defined and thus additiona input will not be very effective. 
+
+In Figures~\ref{fig:resTripod},\ref{fig:resWorm},\ref{fig:resUshape} we see synthetic shapes that have been delineated by our 'Where To Slice' approach and compared to the Rand Slice Selection. It can be seen for the tripod case our approach can achieve sucessful delineation after 2 interactions from the user, whereas a random apporach would require 10 iterations to cross 90\% similarity. In two other examples it cans be seen that we reduce by about 50\% the user interaction required to achieve a succesful delineation.
+
+In Figures~\ref{fig:resKnotGT}-\ref{fig:knot_random11} we let the algorithm segments a trefoil knot synthetic shape and compare its performance with a random planes-algorithm execution.
+Notice that the algorithm captures the topology of the shape faster than the random planes algorithm does.
+
+\begin{figure}[p]
+\centering
+  \includegraphics[width=.85\textwidth]{images/tripod_s1.png}
+  \caption[Tripod / Algorithm - First Arbitrary Contour]{
+  Tripod / Algorithm - First Arbitrary Contour.
+  } \label{fig:tripod_smart1}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+  \includegraphics[width=.85\textwidth]{images/tripod_s2.png}
+  \caption[Tripod / Algorithm - Second Contour]{
+  Tripod / Algorithm - Second Contour.
+  The tripod legs constitute the three bad clusters which are detected and used to define the next plane to delineate.
+  } \label{fig:tripod_smart2}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+  \includegraphics[width=.85\textwidth]{images/tripod_s3.png}
+  \caption[Tripod / Algorithm - Third Contour]{
+  Tripod / Algorithm - Third Contour.
+  Selecting a slice for further minor refining.
+  } \label{fig:tripod_smart3}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+  \includegraphics[width=.5\textwidth]{images/tripod_r1.png}
+  \includegraphics[width=.5\textwidth]{images/tripod_r2.png}
+  \includegraphics[width=.5\textwidth]{images/tripod_r3.png}
+  \caption[Tripod / Random]{
+  Tripod / Random - 3,7,11 Contours.
+  } \label{fig:tripod_random}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+  \includegraphics[width=.85\textwidth]{images/res_tripod.png}
+  \caption[Synthetic Tripod]{
+  Synthetic Tripod.
+  X axis is iteration; Y axis is Dice coefficient, indicating similarity to ground-truth.
+  }\label{fig:resTripod}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+  \includegraphics[width=.85\textwidth]{images/res_worm.png}
+  \caption[Synthetic Worm]{
+  Synthetic Worm.
+  X axis is iteration; Y axis is Dice coefficient, indicating similarity to ground-truth.
+  }\label{fig:resWorm}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+  \includegraphics[width=.85\textwidth]{images/res_ushape.png}
+  \caption[Synthetic U-Shape]{
+  Synthetic U-Shape.
+  X axis is iteration; Y axis is Dice coefficient, indicating similarity to ground-truth.
+  }\label{fig:resUshape}
+\end{figure}
+
+%  \includegraphics[width=.95\linewidth]{images/res_synth.png}
+
+\begin{figure}[t]
+	\centering
+  \includegraphics[width=.78\textwidth]{images/knot_gt.png} 
+  \caption[Trefoil Knot Ground-Truth]{
+  Trefoil knot ground-truth.
+  }\label{fig:resKnotGT}
+\end{figure}
+\begin{figure}[b]
+	\centering
+  \includegraphics[width=.78\textwidth]{images/knot_graph.png}
+  \caption[Trefoil Knot Segmentation Performance]{
+  Trefoil knot segmentation performance.
+  }\label{fig:resKnotPerf}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[t] 
+	\centering
+  \includegraphics[width=.83\textwidth]{images/knot_w7.png}
+  \caption[Trefoil Knot Algorithm Progression (1)]{
+  Trefoil knot algorithm progression after 7 slices.
+  }\label{fig:knot_algo7}
+\end{figure}
+\begin{figure}[b] 
+	\centering
+  \includegraphics[width=.83\textwidth]{images/knot_w11.png}
+  \caption[Trefoil Knot Algorithm Progression (2)]{
+  Trefoil knot algorithm progression after 11 slices.
+  }\label{fig:knot_algo11}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[t] 
+	\centering
+  \includegraphics[width=.83\textwidth]{images/knot_r7.png}
+  \caption[Trefoil Knot Random Planes Progression (1)]{
+  Trefoil knot random planes progression after 7 slices.
+  }\label{fig:knot_random7}  
+\end{figure}
+\begin{figure}[b] 
+	\centering
+  \includegraphics[width=.83\textwidth]{images/knot_r11.png}
+  \caption[Trefoil Knot Random Planes Progression (2)]{
+  Trefoil knot random planes progression after 11 slices.
+  }\label{fig:knot_random11}  
+\end{figure}
+
+\clearpage
+
+\subsection{Anatomical Shapes}
+
+Our apporach was developed with the realization that delineating 3D volumes of anatomical structures is a demanding task. We test the appraoch on a few examples of anatomical structures. We have obtained annonymized data sets from BodyParts3D \cite{MitsuhashiFTKTO09}.
+We use three sample data sets representing right calcaneus (104x93x128), L1 vertabrea (114x93x128) and left hepatic vein (156x96x135). The delineation following the approcah described above. Starting with two arbitrary slices for initialization input, followed by user interaction guided either by the Random slice select or by our slice selection apporaoch. Figures~\ref{fig:calcaneusGT}-\ref{fig:LhvPerf} shows these three examples and the graph of similarity to ground truth delieation vs. user interaction required. It can be seen that the guided approach reduces the user interaction by 50\% in these examples. specifficaly the more non uniform the shape is the greater the benefit. The Vertabrea which are highly irregular in shape shows a reductoin o 70\% in the required user interactions.
+
+%  \includegraphics[width=.95\linewidth]{images/res_real.png}
+
+\clearpage
+\begin{figure}[t] 
+	\centering
+  \includegraphics[width=.83\textwidth]{images/calcaneus.png}
+  \caption[Calcaneus Ground-Truth]{
+  Calcaneus ground-truth.
+  }\label{fig:calcaneusGT}  
+\end{figure}
+\begin{figure}[b]
+	\centering
+  \includegraphics[width=.83\textwidth]{images/calcaneus_graph.png}
+  \caption[Calcaneus Segmentation Performance]{
+  Calcaneus segmentation performance.
+  }\label{fig:calcaneusPerf}  
+\end{figure}
+\clearpage
+
+\clearpage
+\begin{figure}[t] 
+	\centering
+  \includegraphics[width=.6\textwidth]{images/vertebra_l1.png}
+  \caption[Vertebra L1 Ground-Truth]{
+  Vertebra L1 ground-truth.
+  }\label{fig:vertebraL1GT}  
+\end{figure}
+\begin{figure}[b]
+	\centering
+  \includegraphics[width=.6\textwidth]{images/vertebra_l1_graph.png}
+  \caption[Vertebra L1 Segmentation Performance]{
+  Vertebra L1 segmentation performance.
+  }\label{fig:vertebraL1Perf}  
+\end{figure}
+\clearpage
+
+\clearpage
+\begin{figure}[t] 
+	\centering
+  \includegraphics[width=.83\textwidth]{images/lhv.png}
+  \caption[Left Hepatic Vein Ground-Truth]{
+  Left hepatic vein ground-truth.
+  }\label{fig:LhvGT}  
+\end{figure}
+\begin{figure}[b]
+	\centering
+  \includegraphics[width=.83\textwidth]{images/lhv_graph.png}
+  \caption[Left Hepatic Vein Segmentation Performance]{
+  Left hepatic vein segmentation performance.
+  }\label{fig:LhvPerf}  
+\end{figure}
+\clearpage
+
+\subsection{Real Medical Data}
+
+In Figures~\ref{fig:ventricleGT}-~\ref{fig:cerebellumPerf} we see real medical examples.
+The first is of brain ventricle region of interest from MRI, image size of 98x113x171.
+The illustration shows the ground-truth as delineated by an expert prior to our experiment, along with a sample slice that the expert marked.
+For experiments, we used an Intel Core i7 machine with 8 cores and 16GB RAM.
+The algorithm gave a suggestion in 11 seconds in average (and then extracted the designated slice in another 10 seconds.)
+The second specimen is humeral bone part \cite{humeral98}, from CT, image size of 120x110x155.
+The running time was similar - average of 12 seconds for a suggestion.
+The third example is of the cerebellum (brain sub-organ) from MRI, image size of 109x73x76, again with similar performance measurements.
+
+\clearpage
+\begin{figure}[t]
+\centering
+  \includegraphics[width=.7\textwidth]{images/ventricle_image.png}
+  \caption[Ventricle Ground-Truth]{
+  Ventricle ground-truth.
+  }\label{fig:ventricleGT}
+\end{figure}
+\begin{figure}[b]
+\centering
+  \includegraphics[width=.7\textwidth]{images/res_ventricle.png}
+  \caption[Ventricle Segmentation Performance]{
+  Ventricle Segmentation performance.
+  X axis is iteration; Y axis is Dice coefficient, indicating similarity to ground-truth.
+  }\label{fig:ventriclePerf}
+\end{figure}
+
+\clearpage
+\begin{figure}[t]
+\centering
+  \includegraphics[width=.75\textwidth]{images/humeral_image.png}
+  \caption[Humeral Ground-Truth]{
+  Humeral ground-truth.
+  }\label{fig:humeralGT}
+\end{figure}
+\begin{figure}[b]
+\centering
+  \includegraphics[width=.75\textwidth]{images/humeral_graph.png}
+  \caption[Humeral Segmentation Performance]{
+  Humeral Segmentation performance.
+  X axis is iteration; Y axis is Dice coefficient, indicating similarity to ground-truth.
+  }\label{fig:humeralPerf}
+\end{figure}
+
+\clearpage
+\begin{figure}[t]
+\centering
+  \includegraphics[width=.83\textwidth]{images/cerebellum.png}
+  \caption[Cerebellum Segmentation Ground-Truth]{
+  Cerebellum Segmentation.
+  X axis is iteration; Y axis is Dice coefficient, indicating similarity to ground-truth.
+  }\label{fig:cerebellumGT}
+\end{figure}
+\begin{figure}[b]
+\centering
+  \includegraphics[width=.83\textwidth]{images/cb_graph.png}
+  \caption[Cerebellum Segmentation Performance]{
+  Cerebellum Segmentation performance.
+  X axis is iteration; Y axis is Dice coefficient, indicating similarity to ground-truth.
+  }\label{fig:cerebellumPerf}
+\end{figure}
+\clearpage
